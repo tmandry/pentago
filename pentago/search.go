@@ -1,7 +1,10 @@
 package pentago
 
-import "fmt"
-import "math/rand"
+import (
+	"fmt"
+	"math"
+	"math/rand"
+)
 
 func (b Board) RandomMove() Move {
 	moves := b.ValidMoves()
@@ -143,8 +146,8 @@ func (b Board) Evaluate() float32 {
 				for i := range spans {
 					prob, winner := b.getSpanWinProb(probs, spans[i])
 					switch winner {
-						case White: return -100
-						case Black: return +100
+						case White: return -math.MaxFloat32
+						case Black: return +math.MaxFloat32
 					}
 					switch b[r][c] {
 						case White: score -= prob
@@ -158,39 +161,56 @@ func (b Board) Evaluate() float32 {
 }
 
 func (b Board) BestMove() Move {
-	const depth = 2
-	m, s := b.getBestMove(0, depth, 1)
+	const depth = 3
+	m, s := b.getBestMove(0, depth, 1, -math.MaxFloat32, +math.MaxFloat32)
 	fmt.Printf("best score: %f\n", s)
 	return m
 }
 
-func (b Board) getBestMove(depth, maxDepth, multiplier int) (Move, float32) {
+func (b Board) getBestMove(depth, maxDepth int, color Piece, alpha, beta float32) (Move, float32) {
 	if depth == maxDepth {
 		return Move{}, b.Evaluate()
 	}
 	switch winner := b.CheckWinner(); winner {
-		case White: return Move{}, -100
-		case Black: return Move{}, +100
-	}
-
-	var color Piece
-	switch multiplier {
-		case 1: color = Black
-		case -1: color = White
+		case White: return Move{}, -math.MaxFloat32
+		case Black: return Move{}, +math.MaxFloat32
 	}
 
 	var bestMove Move
-	var bestScore float32
 	moves := b.ValidMoves()
-	for _, move := range moves {
-		bp := b.Clone()
-		bp.ApplyMove(move, color)
-		_, score := bp.getBestMove(depth+1, maxDepth, -1*multiplier)
-		if score*float32(multiplier) > bestScore {
-			bestMove = move
-			bestScore = score
-		}
-	}
+	switch color {
+	case Black:
+		// maxmimizing
+		for _, move := range moves {
+			bp := b.Clone()
+			bp.ApplyMove(move, Black)
 
-	return bestMove, bestScore
+			_, score := bp.getBestMove(depth+1, maxDepth, White, alpha, beta)
+			if score > alpha {
+				alpha = score
+				bestMove = move
+			}
+			if beta <= alpha {
+				break
+			}
+		}
+		return bestMove, alpha
+	case White:
+		// minimizing
+		for _, move := range moves {
+			bp := b.Clone()
+			bp.ApplyMove(move, White)
+
+			_, score := bp.getBestMove(depth+1, maxDepth, Black, alpha, beta)
+			if score < beta {
+				beta = score
+				bestMove = move
+			}
+			if beta <= alpha {
+				break
+			}
+		}
+		return bestMove, beta
+	}
+	return Move{}, 0
 }
