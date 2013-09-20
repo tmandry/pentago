@@ -168,6 +168,10 @@ func (b Board) getBestMove(depth, maxDepth, multiplier int) (Move, float32) {
 	if depth == maxDepth {
 		return Move{}, b.Evaluate()
 	}
+	switch winner := b.CheckWinner(); winner {
+		case White: return Move{}, -100
+		case Black: return Move{}, +100
+	}
 
 	var color Piece
 	switch multiplier {
