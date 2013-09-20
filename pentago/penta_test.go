@@ -97,7 +97,7 @@ func ExampleMoveRotatingDifferentSubboard() {
 	g := NewGame()
 	g.Board = startBoard()
 	g.Turn = White
-	ok := g.Move(2, 1, 2, CounterClockwise)
+	ok := g.Move(NewMove(2, 1, 2, CounterClockwise))
 	fmt.Println(ok)
 	fmt.Print(g)
 	// Output:
@@ -114,7 +114,7 @@ func ExampleMoveRotatingSameSubboard() {
 	g := NewGame()
 	g.Board = startBoard()
 	g.Turn = White
-	ok := g.Move(5, 1, 2, CounterClockwise)
+	ok := g.Move(NewMove(5, 1, 2, CounterClockwise))
 	fmt.Println(ok)
 	fmt.Print(g)
 	// Output:
@@ -131,7 +131,7 @@ func ExampleInvalidMove() {
 	g := NewGame()
 	g.Board = startBoard()
 	g.Turn = White
-	ok := g.Move(0, 1, 2, CounterClockwise)
+	ok := g.Move(NewMove(0, 1, 2, CounterClockwise))
 	fmt.Println(ok)
 	fmt.Print(g)
 	// Output:
@@ -148,15 +148,15 @@ func TestMoveAlternatesTurns(t *testing.T) {
 	g := NewGame()
 	g.Board = startBoard()
 	g.Turn = White
-	_ = g.Move(5, 1, 2, CounterClockwise)
+	_ = g.Move(NewMove(5, 1, 2, CounterClockwise))
 	if g.Turn != Black {
 		t.Error("Expected Turn to switch to black")
 	}
-	_ = g.Move(5, 3, 2, CounterClockwise)
+	_ = g.Move(NewMove(5, 3, 2, CounterClockwise))
 	if g.Turn != White {
 		t.Error("Expected Turn to switch to white")
 	}
-	_ = g.Move(5, 3, 2, CounterClockwise)
+	_ = g.Move(NewMove(5, 3, 2, CounterClockwise))
 	if g.Turn != White {
 		t.Error("Expected Turn to stay the same for invalid move")
 	}

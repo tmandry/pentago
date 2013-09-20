@@ -2,6 +2,7 @@ package pentago
 
 import (
 	"bytes"
+	"fmt"
 )
 
 type Piece int
@@ -128,6 +129,41 @@ func (b Board) CheckWinner() Piece {
 	return Empty
 }
 
+type Move struct {
+	r int
+	c int
+	sub int
+	dir int
+}
+
+func NewMove(r, c, sub, dir int) Move {
+	return Move{r, c, sub, dir}
+}
+
+func (m Move) String() string {
+	var directions = map[int]string{Clockwise: "CW", CounterClockwise: "CCW"}
+	return fmt.Sprintf("Put piece (%d, %d), rotate subboard %d %s", m.r, m.c, m.sub, directions[m.dir])
+}
+
+func (m Move) IsValid(b Board) bool {
+	return b[m.r][m.c] == Empty
+}
+
+func (b Board) ValidMoves() []Move {
+	moves := make([]Move, 0, 50)
+	for r := 0; r < 6; r++ {
+		for c := 0; c < 6; c++ {
+			if b[r][c] == Empty {
+				for sub := 0; sub < 4; sub++ {
+					moves = append(moves, Move{r, c, sub, 0})
+					moves = append(moves, Move{r, c, sub, 1})
+				}
+			}
+		}
+	}
+	return moves
+}
+
 type Game struct {
 	Board
 	Turn Piece
@@ -140,13 +176,13 @@ func NewGame() Game {
 	}
 }
 
-func (g *Game) Move(r, c, sub, dir int) bool {
-	if g.Board[r][c] != Empty {
+func (g *Game) Move(m Move) bool {
+	if g.Board[m.r][m.c] != Empty {
 		return false
 	}
 
-	g.Board[r][c] = g.Turn
-	g.Board.Rotate(sub / 2, sub % 2, dir)
+	g.Board[m.r][m.c] = g.Turn
+	g.Board.Rotate(m.sub / 2, m.sub % 2, m.dir)
 	switch g.Turn {
 	case White: g.Turn = Black
 	case Black: g.Turn = White
