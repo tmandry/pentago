@@ -138,6 +138,15 @@ func (b Board) CheckWinner() Piece {
 	if color := b.checkSpan(Coord{0, 0}, 1, 1, 5, 6); color != Empty {
 		return color
 	}
+	if color := b.checkSpan(Coord{4, 0}, -1, 1, 5, 5); color != Empty {
+		return color
+	}
+	if color := b.checkSpan(Coord{5, 1}, -1, 1, 5, 5); color != Empty {
+		return color
+	}
+	if color := b.checkSpan(Coord{5, 0}, -1, 1, 5, 6); color != Empty {
+		return color
+	}
 	return Empty
 }
 
