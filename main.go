@@ -8,7 +8,7 @@ import (
 
 func main() {
 	game := pg.NewGame()
-	playRvAI(&game)
+	playAIvAI(&game)
 }
 
 var colors = map[pg.Piece]string{pg.White: "White", pg.Black: "Black"}
@@ -60,7 +60,7 @@ func playHvAI(game *pg.Game) {
 		if game.Turn == pg.White {
 			move = promptForMove(game)
 		} else {
-			move = game.BestMove()
+			move = game.BestMove(pg.Black)
 		}
 
 		if ok := game.Move(move); !ok {
@@ -82,7 +82,29 @@ func playRvAI(game *pg.Game) {
 		if game.Turn == pg.White {
 			move = game.RandomMove()
 		} else {
-			move = game.BestMove()
+			move = game.BestMove(pg.Black)
+		}
+
+		if ok := game.Move(move); !ok {
+			fmt.Println("Error")
+		}
+		fmt.Println(move)
+	}
+}
+
+func playAIvAI(game *pg.Game) {
+	for {
+		fmt.Print(game.Board)
+		if winner := game.CheckWinner(); winner != pg.Empty {
+			fmt.Printf("%s won!", colors[winner])
+			break
+		}
+
+		var move pg.Move
+		if game.Turn == pg.White {
+			move = game.BestMove(pg.White)
+		} else {
+			move = game.BestMove(pg.Black)
 		}
 
 		if ok := game.Move(move); !ok {

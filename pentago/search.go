@@ -160,9 +160,9 @@ func (b Board) Evaluate() float32 {
 	return score
 }
 
-func (b Board) BestMove() Move {
+func (b Board) BestMove(color Piece) Move {
 	const depth = 3
-	m, s := b.getBestMove(0, depth, 1, -math.MaxFloat32, +math.MaxFloat32)
+	m, s := b.getBestMove(0, depth, color, -math.MaxFloat32, +math.MaxFloat32)
 	fmt.Printf("best score: %f\n", s)
 	return m
 }
