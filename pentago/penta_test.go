@@ -74,22 +74,38 @@ func TestCheckWinner(t *testing.T) {
 	// Test rows
 	b[0] = []Piece{White, White, White, White, White, Empty}
 	if v := b.CheckWinner(); v != White {
-		t.Errorf("want White, got %v", v)
+		t.Errorf("row win: want White, got %v", v)
 	}
 	b[0] = []Piece{Black, Black, Black, Black, Black, Empty}
 	if v := b.CheckWinner(); v != Black {
-		t.Errorf("want Black, got %v", v)
+		t.Errorf("row win: want Black, got %v", v)
 	}
 
 	// Test columns
 	b = NewBoard()
 	b[2][1], b[2][2], b[2][3], b[2][4], b[2][5] = White, White, White, White, White
 	if v := b.CheckWinner(); v != White {
-		t.Errorf("want White, got %v", v)
+		t.Errorf("col win: want White, got %v", v)
 	}
 	b[2][1], b[2][2], b[2][3], b[2][4], b[2][5] = White, White, Black, White, White
 	if v := b.CheckWinner(); v != Empty {
-		t.Errorf("want Empty, got %v", v)
+		t.Errorf("col near-win: want Empty, got %v", v)
+	}
+
+	// Test diagonals
+	b = NewBoard()
+	b[0][1], b[1][2], b[2][3], b[3][4], b[4][5] = White, White, White, White, White
+	if v := b.CheckWinner(); v != White {
+		t.Errorf("minor diag win: want White, got %v", v)
+	}
+	b = NewBoard()
+	b[1][1], b[2][2], b[3][3], b[4][4], b[5][5] = Black, Black, Black, Black, Black
+	if v := b.CheckWinner(); v != Black {
+		t.Errorf("major diag win: want Black, got %v", v)
+	}
+	b[1][1], b[2][2], b[3][3], b[4][4], b[5][5] = Black, Black, White, Black, Black
+	if v := b.CheckWinner(); v != Empty {
+		t.Errorf("major diag win: want Empty, got %v", v)
 	}
 }
 

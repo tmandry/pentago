@@ -93,12 +93,14 @@ func (b Board) Rotate(subRow int, subCol int, direction int) {
 // Checks if a span of consecutive pieces of the same color exists on a given
 // row or column. If it does, returns the color of the span. If not, returns
 // Empty.
-func (b Board) checkSpan(coord Coord, deltaR int, deltaC int, length int) Piece {
-	// If first two are the same, they are part of the span in this row if it
-	// exists. If not, the only way is if the span starts at index 1.
-	if b[coord.Row][coord.Col] != b[coord.Row+deltaR][coord.Col+deltaC] {
-		coord.Row += deltaR
-		coord.Col += deltaC
+func (b Board) checkSpan(coord Coord, deltaR, deltaC, length, slotLength int) Piece {
+	for i := 0; i < (slotLength-length); i++ {
+		// If first two are the same, they are part of the span in this row if it
+		// exists. If not, the only way is if the span starts at the next index.
+		if b[coord.Row][coord.Col] != b[coord.Row+deltaR][coord.Col+deltaC] {
+			coord.Row += deltaR
+			coord.Col += deltaC
+		}
 	}
 
 	color := b[coord.Row][coord.Col]
@@ -116,15 +118,25 @@ func (b Board) checkSpan(coord Coord, deltaR int, deltaC int, length int) Piece 
 func (b Board) CheckWinner() Piece {
 	// Check rows
 	for r := 0; r < 6; r++ {
-		if color := b.checkSpan(Coord{r, 0}, 0, 1, 5); color != Empty {
+		if color := b.checkSpan(Coord{r, 0}, 0, 1, 5, 6); color != Empty {
 			return color
 		}
 	}
 	// Check cols
 	for c := 0; c < 6; c++ {
-		if color := b.checkSpan(Coord{0, c}, 1, 0, 5); color != Empty {
+		if color := b.checkSpan(Coord{0, c}, 1, 0, 5, 6); color != Empty {
 			return color
 		}
+	}
+	// Check diags
+	if color := b.checkSpan(Coord{0, 1}, 1, 1, 5, 5); color != Empty {
+		return color
+	}
+	if color := b.checkSpan(Coord{1, 0}, 1, 1, 5, 5); color != Empty {
+		return color
+	}
+	if color := b.checkSpan(Coord{0, 0}, 1, 1, 5, 6); color != Empty {
+		return color
 	}
 	return Empty
 }
