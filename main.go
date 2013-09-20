@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 
 	pg "./pentago"
 )
@@ -99,13 +100,16 @@ func playAIvAI(game *pg.Game) {
 			fmt.Printf("%s won!", colors[winner])
 			break
 		}
+		fmt.Printf("\n%s's move\n", colors[game.Turn])
 
+		start := time.Now()
 		var move pg.Move
 		if game.Turn == pg.White {
 			move = game.BestMove(pg.White)
 		} else {
 			move = game.BestMove(pg.Black)
 		}
+		fmt.Printf("finished in %v\n", time.Since(start))
 
 		if ok := game.Move(move); !ok {
 			fmt.Println("Error")
