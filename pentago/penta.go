@@ -23,6 +23,14 @@ func NewBoard() Board {
 	return b
 }
 
+func (b Board) Clone() Board {
+	b2 := NewBoard()
+	for r := range b {
+		copy(b2[r], b[r])
+	}
+	return b2
+}
+
 func (b Board) String() string {
 	var buffer bytes.Buffer
 	for _, row := range b {
@@ -185,6 +193,15 @@ func (b Board) ValidMoves() []Move {
 	return moves
 }
 
+func (b Board) ApplyMove(m Move, color Piece) bool {
+	if b[m.r][m.c] != Empty {
+		return false
+	}
+	b[m.r][m.c] = color
+	b.Rotate(m.sub / 2, m.sub % 2, m.dir)
+	return true
+}
+
 type Game struct {
 	Board
 	Turn Piece
@@ -198,12 +215,10 @@ func NewGame() Game {
 }
 
 func (g *Game) Move(m Move) bool {
-	if g.Board[m.r][m.c] != Empty {
+	if !g.Board.ApplyMove(m, g.Turn) {
 		return false
 	}
 
-	g.Board[m.r][m.c] = g.Turn
-	g.Board.Rotate(m.sub / 2, m.sub % 2, m.dir)
 	switch g.Turn {
 	case White: g.Turn = Black
 	case Black: g.Turn = White

@@ -8,7 +8,7 @@ import (
 
 func main() {
 	game := pg.NewGame()
-	playHvR(&game)
+	playHvAI(&game)
 }
 
 var colors = map[pg.Piece]string{pg.White: "White", pg.Black: "Black"}
@@ -39,6 +39,28 @@ func playHvR(game *pg.Game) {
 			move = promptForMove(game)
 		} else {
 			move = game.Board.RandomMove()
+		}
+
+		if ok := game.Move(move); !ok {
+			fmt.Println("Error")
+		}
+		fmt.Println(move)
+	}
+}
+
+func playHvAI(game *pg.Game) {
+	for {
+		fmt.Print(game.Board)
+		if winner := game.CheckWinner(); winner != pg.Empty {
+			fmt.Printf("%s won!", colors[winner])
+			break
+		}
+
+		var move pg.Move
+		if game.Turn == pg.White {
+			move = promptForMove(game)
+		} else {
+			move = game.BestMove()
 		}
 
 		if ok := game.Move(move); !ok {
