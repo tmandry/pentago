@@ -106,7 +106,11 @@ func (b Board) getSpans(r, c int) []span {
 	return s
 }
 
-func (b Board) getSpanWinProb(probs [][]cellProbs, s span) float32 {
+func (b Board) getSpanWinProb(probs [][]cellProbs, s span) (float32, Piece) {
+	if s.pieces == 5 {
+		return 1.0, b[s.r][s.c]
+	}
+
 	// Assume this span remains stationary (simplification)
 	// Go past beginning, then past end
 	prob := float32(1.0)
@@ -125,7 +129,7 @@ func (b Board) getSpanWinProb(probs [][]cellProbs, s span) float32 {
 		}
 		r += s.deltaR; c += s.deltaC
 	}
-	return prob
+	return prob, Empty
 }
 
 func (b Board) Evaluate() float32 {
@@ -137,10 +141,14 @@ func (b Board) Evaluate() float32 {
 			if b[r][c] != Empty {
 				spans := b.getSpans(r, c)
 				for i := range spans {
-					prob := b.getSpanWinProb(probs, spans[i])
+					prob, winner := b.getSpanWinProb(probs, spans[i])
+					switch winner {
+						case White: return -100
+						case Black: return +100
+					}
 					switch b[r][c] {
-					case White: score -= prob
-					case Black: score += prob
+						case White: score -= prob
+						case Black: score += prob
 					}
 				}
 			}
