@@ -158,18 +158,35 @@ func (b Board) Evaluate() float32 {
 }
 
 func (b Board) BestMove() Move {
+	const depth = 2
+	m, s := b.getBestMove(0, depth, 1)
+	fmt.Printf("best score: %f\n", s)
+	return m
+}
+
+func (b Board) getBestMove(depth, maxDepth, multiplier int) (Move, float32) {
+	if depth == maxDepth {
+		return Move{}, b.Evaluate()
+	}
+
+	var color Piece
+	switch multiplier {
+		case 1: color = Black
+		case -1: color = White
+	}
+
 	var bestMove Move
 	var bestScore float32
 	moves := b.ValidMoves()
 	for _, move := range moves {
 		bp := b.Clone()
-		bp.ApplyMove(move, Black)
-		if score := bp.Evaluate(); score > bestScore {
+		bp.ApplyMove(move, color)
+		_, score := bp.getBestMove(depth+1, maxDepth, -1*multiplier)
+		if score*float32(multiplier) > bestScore {
 			bestMove = move
 			bestScore = score
 		}
 	}
 
-	fmt.Printf("best score: %f\n", bestScore)
-	return bestMove
+	return bestMove, bestScore
 }
