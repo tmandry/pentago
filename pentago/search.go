@@ -135,6 +135,9 @@ func (b Board) getSpanWinProb(probs [][]cellProbs, s span) (float32, Piece) {
 	return prob, Empty
 }
 
+const whiteWin = -math.MaxFloat32/2
+const blackWin = +math.MaxFloat32/2
+
 func (b Board) Evaluate() float32 {
 	var score float32
 
@@ -146,8 +149,8 @@ func (b Board) Evaluate() float32 {
 				for i := range spans {
 					prob, winner := b.getSpanWinProb(probs, spans[i])
 					switch winner {
-						case White: return -math.MaxFloat32
-						case Black: return +math.MaxFloat32
+						case White: return -whiteWin
+						case Black: return +blackWin
 					}
 					switch b[r][c] {
 						case White: score -= prob
@@ -172,8 +175,8 @@ func (b Board) getBestMove(depth, maxDepth int, color Piece, alpha, beta float32
 		return Move{}, b.Evaluate()
 	}
 	switch winner := b.CheckWinner(); winner {
-		case White: return Move{}, -math.MaxFloat32
-		case Black: return Move{}, +math.MaxFloat32
+		case White: return Move{}, whiteWin
+		case Black: return Move{}, blackWin
 	}
 
 	var bestMove Move
