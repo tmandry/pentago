@@ -1,3 +1,4 @@
+// pentago contains an implementation of the Pentago game logic and a Minimax search algorithm.
 package pentago
 
 import (
@@ -5,6 +6,7 @@ import (
 	"fmt"
 )
 
+// Piece represents the color of the piece. It can also be Empty, meaning no piece.
 type Piece int
 
 const (
@@ -13,8 +15,10 @@ const (
 	White
 )
 
+// Board represents the state of the board in a Pentago game.
 type Board [][]Piece
 
+// NewBoard makes a new empty Pentago board.
 func NewBoard() Board {
 	b := make([][]Piece, 6)
 	for r := 0; r < 6; r++ {
@@ -23,6 +27,7 @@ func NewBoard() Board {
 	return b
 }
 
+// Clone makes a copy of an existing board.
 func (b Board) Clone() Board {
 	b2 := NewBoard()
 	for r := range b {
@@ -31,6 +36,7 @@ func (b Board) Clone() Board {
 	return b2
 }
 
+// String returns the board state as human-readable string.
 func (b Board) String() string {
 	var buffer bytes.Buffer
 	for _, row := range b {
@@ -49,11 +55,13 @@ func (b Board) String() string {
 	return buffer.String()
 }
 
+// Coord represents a location on the board.
 type Coord struct {
-	Row int
-	Col int
+	Row int  // 0-based row, beginning at the top
+	Col int  // 0-based column, beginning at the left
 }
 
+// Get piece returns the color of the piece at the given Coord.
 func (b Board) GetPiece(c Coord) Piece {
 	return b[c.Row][c.Col]
 }
@@ -77,6 +85,8 @@ const (
 	CounterClockwise
 )
 
+// Rotate rotates one of the sub-boards, using a 0-based row and column (subRow and subCol are each
+// either 0 or 1.) direction is either Clockwise or CounterClockwise.
 func (b Board) Rotate(subRow int, subCol int, direction int) {
 	topLeft := Coord{3*subRow, 3*subCol}
 	botLeft := Coord{topLeft.Row+2, topLeft.Col}
@@ -122,7 +132,7 @@ func (b Board) checkSpan(coord Coord, deltaR, deltaC, length, slotLength int) Pi
 	return color
 }
 
-// Returns the color of the winner if there is one, or Empty if none.
+// CheckWinner returns the color of the winner if there is one, or Empty if none.
 func (b Board) CheckWinner() Piece {
 	// Check rows
 	for r := 0; r < 6; r++ {
@@ -158,6 +168,7 @@ func (b Board) CheckWinner() Piece {
 	return Empty
 }
 
+// Move describes a move that a player could make.
 type Move struct {
 	r int
 	c int
@@ -165,19 +176,24 @@ type Move struct {
 	dir int
 }
 
+// NewMove creates a move, given the row and column of the piece, the sub-board to be rotated (0-3),
+// and the direction of the rotation.
 func NewMove(r, c, sub, dir int) Move {
 	return Move{r, c, sub, dir}
 }
 
+// String returns the move in a human-readable form.
 func (m Move) String() string {
 	var directions = map[int]string{Clockwise: "CW", CounterClockwise: "CCW"}
 	return fmt.Sprintf("Put piece (%d, %d), rotate subboard %d %s", m.r, m.c, m.sub, directions[m.dir])
 }
 
+// IsValid returns whether the move is valid.
 func (m Move) IsValid(b Board) bool {
 	return b[m.r][m.c] == Empty
 }
 
+// ValidMoves returns a list of valid moves for a given board state.
 func (b Board) ValidMoves() []Move {
 	moves := make([]Move, 0, 50)
 	for r := 0; r < 6; r++ {
@@ -193,6 +209,7 @@ func (b Board) ValidMoves() []Move {
 	return moves
 }
 
+// ApplyMove executes a move on the board state and returns whether it was successful.
 func (b Board) ApplyMove(m Move, color Piece) bool {
 	if b[m.r][m.c] != Empty {
 		return false
@@ -202,11 +219,13 @@ func (b Board) ApplyMove(m Move, color Piece) bool {
 	return true
 }
 
+// Game represents the game state: both a board state and whose turn it is.
 type Game struct {
 	Board
 	Turn Piece
 }
 
+// NewGame creates a new Game.
 func NewGame() Game {
 	return Game{
 		Board: NewBoard(),
@@ -214,6 +233,7 @@ func NewGame() Game {
 	}
 }
 
+// Move executes the given Move on a game state.
 func (g *Game) Move(m Move) bool {
 	if !g.Board.ApplyMove(m, g.Turn) {
 		return false

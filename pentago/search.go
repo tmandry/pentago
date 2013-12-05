@@ -6,6 +6,7 @@ import (
 	"math/rand"
 )
 
+// RandomMove returns a random valid move.
 func (b Board) RandomMove() Move {
 	moves := b.ValidMoves()
 	return moves[rand.Intn(len(moves))]
@@ -138,6 +139,8 @@ func (b Board) getSpanWinProb(probs [][]cellProbs, s span) (float32, Piece) {
 const whiteWin = -math.MaxFloat32/2
 const blackWin = +math.MaxFloat32/2
 
+// Evaluate returns a score for the board. The more positive the score is, the better a position it
+// is for black and worse for white, and vice versa.
 func (b Board) Evaluate() float32 {
 	var score float32
 
@@ -163,6 +166,7 @@ func (b Board) Evaluate() float32 {
 	return score
 }
 
+// BestMove calculates and returns the best available more for the given color.
 func (b Board) BestMove(color Piece) Move {
 	const depth = 3
 	m, s := b.getBestMove(0, depth, color, -math.MaxFloat32, +math.MaxFloat32)
