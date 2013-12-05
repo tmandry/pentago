@@ -1,7 +1,9 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	"os"
 	"time"
 
 	pg "./pentago"
@@ -16,8 +18,25 @@ const (
 )
 
 func main() {
+	strategies := map[string]int{"human": human, "random": random, "ai": ai}
+	flag.Parse()
+
+	whiteStrategy, blackStrategy := ai, ai
+	args, ok := flag.Args(), true
+	if len(args) > 0 {
+		whiteStrategy, ok = strategies[args[0]]
+	}
+	if len(args) > 1 && ok {
+		blackStrategy, ok = strategies[args[1]]
+	}
+	if !ok {
+		fmt.Println("Usage: pentago [white-strategy] [black-strategy]")
+		fmt.Println("Where each strategy is one of: human, random, ai")
+		os.Exit(1)
+	}
+
 	game := pg.NewGame()
-	play(&game, ai, ai)
+	play(&game, whiteStrategy, blackStrategy)
 }
 
 func play(game *pg.Game, whiteStrategy, blackStrategy int) {
