@@ -7,94 +7,24 @@ import (
 	pg "./pentago"
 )
 
-func main() {
-	game := pg.NewGame()
-	playAIvAI(&game)
-}
-
 var colors = map[pg.Piece]string{pg.White: "White", pg.Black: "Black"}
 
-func playHvH(game *pg.Game) {
-	for {
-		fmt.Print(game.Board)
-		if winner := game.CheckWinner(); winner != pg.Empty {
-			fmt.Printf("%s won!", colors[winner])
-			break
-		}
-		move := promptForMove(game)
-		game.Move(move)
-		fmt.Println(move)
-	}
+const (
+	human = iota
+	random
+	ai
+)
+
+func main() {
+	game := pg.NewGame()
+	play(&game, ai, ai)
 }
 
-func playHvR(game *pg.Game) {
+func play(game *pg.Game, whiteStrategy, blackStrategy int) {
+	strategy := map[pg.Piece]int{pg.White: whiteStrategy, pg.Black: blackStrategy}
+
 	for {
-		fmt.Print(game.Board)
-		if winner := game.CheckWinner(); winner != pg.Empty {
-			fmt.Printf("%s won!", colors[winner])
-			break
-		}
-
-		var move pg.Move
-		if game.Turn == pg.White {
-			move = promptForMove(game)
-		} else {
-			move = game.RandomMove()
-		}
-
-		if ok := game.Move(move); !ok {
-			fmt.Println("Error")
-		}
-		fmt.Println(move)
-	}
-}
-
-func playHvAI(game *pg.Game) {
-	for {
-		fmt.Print(game.Board)
-		if winner := game.CheckWinner(); winner != pg.Empty {
-			fmt.Printf("%s won!", colors[winner])
-			break
-		}
-
-		var move pg.Move
-		if game.Turn == pg.White {
-			move = promptForMove(game)
-		} else {
-			move = game.BestMove(pg.Black)
-		}
-
-		if ok := game.Move(move); !ok {
-			fmt.Println("Error")
-		}
-		fmt.Println(move)
-	}
-}
-
-func playRvAI(game *pg.Game) {
-	for {
-		fmt.Print(game.Board)
-		if winner := game.CheckWinner(); winner != pg.Empty {
-			fmt.Printf("%s won!", colors[winner])
-			break
-		}
-
-		var move pg.Move
-		if game.Turn == pg.White {
-			move = game.RandomMove()
-		} else {
-			move = game.BestMove(pg.Black)
-		}
-
-		if ok := game.Move(move); !ok {
-			fmt.Println("Error")
-		}
-		fmt.Println(move)
-	}
-}
-
-func playAIvAI(game *pg.Game) {
-	for {
+		// Print and check game state
 		fmt.Print(game.Board)
 		if winner := game.CheckWinner(); winner != pg.Empty {
 			fmt.Printf("%s won!", colors[winner])
@@ -102,15 +32,20 @@ func playAIvAI(game *pg.Game) {
 		}
 		fmt.Printf("\n%s's move\n", colors[game.Turn])
 
-		start := time.Now()
+		// Execute move according to strategy for this turn
 		var move pg.Move
-		if game.Turn == pg.White {
-			move = game.BestMove(pg.White)
-		} else {
-			move = game.BestMove(pg.Black)
+		start := time.Now()
+		switch strategy[game.Turn] {
+		case human:
+			move = promptForMove(game)
+		case random:
+			move = game.RandomMove()
+		case ai:
+			move = game.BestMove(game.Turn)
 		}
 		fmt.Printf("finished in %v\n", time.Since(start))
 
+		// Check for errors
 		if ok := game.Move(move); !ok {
 			fmt.Println("Error")
 		}
