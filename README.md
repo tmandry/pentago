@@ -1,7 +1,7 @@
 pentago
 =======
 
-A simple implementation and AI for the game Pentago in Go.
+A simple implementation and AI for the game Pentago in Go. I implemented this for an AI class assignment.
 
 To run: Clone and cd into this repository, and type
 ```sh
